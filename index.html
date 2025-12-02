@@ -50,6 +50,14 @@
     <img src="img/jogarNovamente.gif" id="jogarNovamente"></img>
     <button id="recarregar" onclick="sortear()"><i class='bx bx-refresh'></i></button>
     <button id="jogarAutomatico" onclick="listaAutomatica()"><i class='bx bx-pause-circle'></i></button>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.cookie.split(";").forEach(function(cookie) {
+        const nome = cookie.split("=")[0].trim();
+        document.cookie = nome + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    });
+});
+</script>
 
     <script src="js/forca.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
