@@ -57,7 +57,7 @@ Contribuições são **muito bem-vindas**! Se você tem alguma ideia para novas 
 
 ---
 
-| [![André StudioNerd](https://avatars.githubusercontent.com/u/SEU_ID_GITHUB?v=4&s=100)](https://github.com/Andre-StudioNerd) | **André StudioNerd** |
+
 | :---: | :--- |
 | **GitHub:** | [@Andre-StudioNerd](https://github.com/Andre-StudioNerd) |
 
