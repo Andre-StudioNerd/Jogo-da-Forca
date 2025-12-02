@@ -1,7 +1,5 @@
 # 🪢 Jogo da Forca
 
-![Logo/Banner do Jogo da Forca - Se houver uma imagem, use aqui]
-
 > Um clássico Jogo da Forca (Hangman) totalmente desenvolvido em **Javascript**, HTML e CSS. Teste seu vocabulário e tente adivinhar a palavra secreta antes que o boneco seja enforcado!
 
 ## ✨ Funcionalidades
