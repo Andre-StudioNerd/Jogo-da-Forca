@@ -20,13 +20,24 @@
         </div>
         <div id="teclado">
             <div class="teclas_index">
-                <button id="tecla" onclick="window.location.href='forca.html'">JOGAR</button>
-                <button id="tecla" onclick="window.location.href='regras.html'">REGRAS</button>
+                <p>O programa seleciona aleatoriamente uma palavra secreta. </p>
+                <p>O jogador deve adivinhar essa palavra, uma letra por vez. </p>
+                <p>A palavra é inicialmente mostrada como traços (uma linha para cada letra). <p>
+                <p>Você escolhe uma letra (clicando na letra). </p>
+                <p>Se a letra estiver presente na palavra --> todas as ocorrências dela são reveladas na posição correta. </p>
+                <p>Se a letra não estiver na palavra → conta como erro, e “uma parte do corpo do boneco da forca” é desenhada / uma tentativa é perdida.</p>
+                <p>Clicando no Joystick, muda a categoria da palavra</p>
+                <button id="tecla" onclick="history.back()">SAIR</button>
+
 
             </div>
 
 
         </div>
+
+
+
+
 
         <!-- Modal Adicionar Palavra -->
         <div id="modal-alerta" class="modal-container">
@@ -55,8 +66,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-    </main>
     <footer><p>Desenvolvido por André Luis Fernandes</p></footer>
+    </main>
 </body>
 </html>
