@@ -6,27 +6,74 @@ let palavraSecretaSorteada;
 let palavras = [];
 let jogoAutomatico = true;
 
-carregaListaAutomatica();
+// Aguarda o HTML carregar completamente antes de iniciar a lógica do jogo
+document.addEventListener("DOMContentLoaded", function () {
+  carregaListaAutomatica();
+  criarPalavraSecreta();
+  montarPalavraNaTela();
 
-criarPalavraSecreta();
+  // Configura os botões que precisam de eventos após o DOM carregar
+  let bntReiniciar = document.querySelector("#btnReiniciar");
+  if (bntReiniciar) {
+    bntReiniciar.addEventListener("click", function () {
+      jogarNovamente = false;
+      location.reload();
+    });
+  }
+
+  const modal = document.getElementById("modal-alerta");
+  const btnAbreModal = document.getElementById("abreModalAddPalavra");
+  if (btnAbreModal && modal) {
+    btnAbreModal.onclick = function () {
+      modal.style.display = "block";
+    };
+  }
+
+  const btnFechaModal = document.getElementById("fechaModal");
+  if (btnFechaModal && modal) {
+    btnFechaModal.onclick = function () {
+      modal.style.display = "none";
+      document.getElementById("addPalavra").value = "";
+      document.getElementById("addCategoria").value = "";
+    };
+  }
+
+  window.onclick = function (event) {
+    if (modal && event.target == modal) {
+      modal.style.display = "none";
+      document.getElementById("addPalavra").value = "";
+      document.getElementById("addCategoria").value = "";
+    }
+  };
+
+  // ✅ Trata o evento de ocultar o modal ANTES do Bootstrap injetar 'aria-hidden'
+  if (typeof $ !== "undefined") {
+    $("#myModal").on("hide.bs.modal", function () {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    });
+  }
+});
+
 function criarPalavraSecreta() {
   const indexPalavra = parseInt(Math.random() * palavras.length);
 
   palavraSecretaSorteada = palavras[indexPalavra].nome;
   palavraSecretaCategoria = palavras[indexPalavra].categoria;
-
-  // console.log(palavraSecretaSorteada);
 }
 
-montarPalavraNaTela();
 function montarPalavraNaTela() {
   const categoria = document.getElementById("categoria");
-  categoria.innerHTML = palavraSecretaCategoria;
-
   const palavraTela = document.getElementById("palavra-secreta");
+
+  // Proteção para evitar erro de propriedade 'null' caso as divs não existam
+  if (!categoria || !palavraTela) return;
+
+  categoria.innerHTML = palavraSecretaCategoria;
   palavraTela.innerHTML = "";
 
-  for (i = 0; i < palavraSecretaSorteada.length; i++) {
+  for (let i = 0; i < palavraSecretaSorteada.length; i++) {
     if (listaDinamica[i] == undefined) {
       if (palavraSecretaSorteada[i] == " ") {
         listaDinamica[i] = " ";
@@ -63,7 +110,9 @@ function montarPalavraNaTela() {
 }
 
 function verificaLetraEscolhida(letra) {
-  document.getElementById("tecla-" + letra).disabled = true;
+  const teclaBtn = document.getElementById("tecla-" + letra);
+  if (teclaBtn) teclaBtn.disabled = true;
+
   if (tentativas > 0) {
     mudarStyleLetra("tecla-" + letra, false);
     comparalistas(letra);
@@ -72,12 +121,15 @@ function verificaLetraEscolhida(letra) {
 }
 
 function mudarStyleLetra(tecla, condicao) {
+  const el = document.getElementById(tecla);
+  if (!el) return;
+
   if (condicao == false) {
-    document.getElementById(tecla).style.background = "#C71585";
-    document.getElementById(tecla).style.color = "#ffffff";
+    el.style.background = "#C71585";
+    el.style.color = "#ffffff";
   } else {
-    document.getElementById(tecla).style.background = "#008000";
-    document.getElementById(tecla).style.color = "#ffffff";
+    el.style.background = "#008000";
+    el.style.color = "#ffffff";
   }
 }
 
@@ -91,13 +143,13 @@ function comparalistas(letra) {
       abreModal(
         "OPS!",
         "Não foi dessa vez ... A palavra secreta era <br>" +
-          palavraSecretaSorteada
+          palavraSecretaSorteada,
       );
       piscarBotaoJogarNovamente(true);
     }
   } else {
     mudarStyleLetra("tecla-" + letra, true);
-    for (i = 0; i < palavraSecretaSorteada.length; i++) {
+    for (let i = 0; i < palavraSecretaSorteada.length; i++) {
       if (palavraSecretaSorteada[i] == letra) {
         listaDinamica[i] = letra;
       }
@@ -105,7 +157,7 @@ function comparalistas(letra) {
   }
 
   let vitoria = true;
-  for (i = 0; i < palavraSecretaSorteada.length; i++) {
+  for (let i = 0; i < palavraSecretaSorteada.length; i++) {
     if (palavraSecretaSorteada[i] != listaDinamica[i]) {
       vitoria = false;
     }
@@ -118,74 +170,50 @@ function comparalistas(letra) {
   }
 }
 
-// async function piscarBotaoJogarNovamente(){
-//     while (jogarNovamente == true) {
-//         document.getElementById("btnReiniciar").style.backgroundColor = 'red';
-//         document.getElementById("btnReiniciar").style.scale = 1.3;
-//         await atraso(500)
-//         document.getElementById("btnReiniciar").style.backgroundColor = 'yellow';
-//         document.getElementById("btnReiniciar").style.scale = 1;
-//         await atraso(500)
-//     }
-// }
-
-async function atraso(tempo) {
-  return new Promise((x) => setTimeout(x, tempo));
-}
-
 function carregaImagemForca() {
+  const imgElement = document.getElementById("imagem");
+  if (!imgElement) return;
+
   switch (tentativas) {
     case 5:
-      document.getElementById("imagem").style.background =
-        "url('./img/forca01.png')";
+      imgElement.style.background = "url('./img/forca01.png')";
       break;
     case 4:
-      document.getElementById("imagem").style.background =
-        "url('./img/forca02.png')";
+      imgElement.style.background = "url('./img/forca02.png')";
       break;
     case 3:
-      document.getElementById("imagem").style.background =
-        "url('./img/forca03.png')";
+      imgElement.style.background = "url('./img/forca03.png')";
       break;
     case 2:
-      document.getElementById("imagem").style.background =
-        "url('./img/forca04.png')";
+      imgElement.style.background = "url('./img/forca04.png')";
       break;
     case 1:
-      document.getElementById("imagem").style.background =
-        "url('./img/forca05.png')";
+      imgElement.style.background = "url('./img/forca05.png')";
       break;
     case 0:
-      document.getElementById("imagem").style.background =
-        "url('./img/forca06.png')";
+      imgElement.style.background = "url('./img/forca06.png')";
       break;
     default:
-      document.getElementById("imagem").style.background =
-        "url('./img/forca.png')";
+      imgElement.style.background = "url('./img/forca.png')";
       break;
   }
 }
 
 function abreModal(titulo, mensagem) {
   let modalTitulo = document.getElementById("exampleModalLabel");
-  modalTitulo.innerText = titulo;
+  if (modalTitulo) modalTitulo.innerText = titulo;
 
   let modalBody = document.getElementById("modalBody");
-  modalBody.innerHTML = mensagem;
+  if (modalBody) modalBody.innerHTML = mensagem;
 
-  $("#myModal").modal({
-    show: true,
-  });
+  if (typeof $ !== "undefined") {
+    $("#myModal").modal({
+      show: true,
+    });
+  }
 }
 
-let bntReiniciar = document.querySelector("#btnReiniciar");
-bntReiniciar.addEventListener("click", function () {
-  jogarNovamente = false;
-  location.reload();
-});
-
 function listaAutomatica() {
-  // ativa o modo manual
   if (jogoAutomatico == true) {
     document.getElementById("jogarAutomatico").innerHTML =
       "<i class='bx bx-play-circle'></i>";
@@ -195,7 +223,6 @@ function listaAutomatica() {
     document.getElementById("abreModalAddPalavra").style.display = "block";
     document.getElementById("status").innerHTML = "Modo Manual";
   } else if (jogoAutomatico == false) {
-    // ativa o modo automático
     document.getElementById("jogarAutomatico").innerHTML =
       "<i class='bx bx-pause-circle'></i>";
     jogoAutomatico = true;
@@ -205,274 +232,68 @@ function listaAutomatica() {
   }
 }
 
-const modal = document.getElementById("modal-alerta");
-
-const btnAbreModal = document.getElementById("abreModalAddPalavra");
-btnAbreModal.onclick = function () {
-  modal.style.display = "block";
-};
-
-const btnFechaModal = document.getElementById("fechaModal");
-btnFechaModal.onclick = function () {
-  modal.style.display = "none";
-  document.getElementById("addPalavra").value = "";
-  document.getElementById("addCategoria").value = "";
-};
-
-window.onclick = function () {
-  if (event.target == modal) {
-    modal.style.display = "none";
-    document.getElementById("addPalavra").value = "";
-    document.getElementById("addCategoria").value = "";
-  }
-};
-
 function carregaListaAutomatica() {
   palavras = [
-    (palavra001 = {
-      nome: "IRLANDA",
-      categoria: "LUGARES",
-    }),
-    (palavra002 = {
-      nome: "EQUADOR",
-      categoria: "LUGARES",
-    }),
-    (palavra003 = {
-      nome: "CHILE",
-      categoria: "LUGARES",
-    }),
-    (palavra004 = {
-      nome: "INDONESIA",
-      categoria: "LUGARES",
-    }),
-    (palavra005 = {
-      nome: "MALDIVAS",
-      categoria: "LUGARES",
-    }),
-    (palavra006 = {
-      nome: "INGLATERRA",
-      categoria: "LUGARES",
-    }),
-    (palavra007 = {
-      nome: "GROELANDIA",
-      categoria: "LUGARES",
-    }),
-    (palavra008 = {
-      nome: "UZBEQUISTAO",
-      categoria: "LUGARES",
-    }),
-    (palavra009 = {
-      nome: "INDONESIA",
-      categoria: "LUGARES",
-    }),
-    (palavra010 = {
-      nome: "CREGUENHEM",
-      categoria: "LUGARES",
-    }),
-    (palavra011 = {
-      nome: "BICICLETA",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra012 = {
-      nome: "LANCHA",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra013 = {
-      nome: "NAVIO",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra014 = {
-      nome: "TELEFERICO",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra015 = {
-      nome: "MOTOCICLETA",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra016 = {
-      nome: "BARCO",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra017 = {
-      nome: "AERONAVE",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra018 = {
-      nome: "TREM",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra019 = {
-      nome: "CAIAQUE",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra020 = {
-      nome: "CARRO",
-      categoria: "TRANSPORTE",
-    }),
-    (palavra021 = {
-      nome: "XICARA",
-      categoria: "OBJETOS",
-    }),
-    (palavra022 = {
-      nome: "MOEDA",
-      categoria: "OBJETOS",
-    }),
-    (palavra023 = {
-      nome: "ESPARADRAPO",
-      categoria: "OBJETOS",
-    }),
-    (palavra024 = {
-      nome: "SINO",
-      categoria: "OBJETOS",
-    }),
-    (palavra025 = {
-      nome: "CHUVEIRO",
-      categoria: "OBJETOS",
-    }),
-    (palavra026 = {
-      nome: "TAMBORETE",
-      categoria: "OBJETOS",
-    }),
-    (palavra027 = {
-      nome: "LAMPADA",
-      categoria: "OBJETOS",
-    }),
-    (palavra028 = {
-      nome: "BOCAL",
-      categoria: "OBJETOS",
-    }),
-    (palavra029 = {
-      nome: "CORTINA",
-      categoria: "OBJETOS",
-    }),
-    (palavra030 = {
-      nome: "LAPIS",
-      categoria: "OBJETOS",
-    }),
-    (palavra031 = {
-      nome: "MELANCIA",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra032 = {
-      nome: "AMENDOIM",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra033 = {
-      nome: "ESFIRRA",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra034 = {
-      nome: "GOIABA",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra035 = {
-      nome: "JACA",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra036 = {
-      nome: "SORVETE",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra037 = {
-      nome: "DAMASCO",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra038 = {
-      nome: "MANTEIGA",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra039 = {
-      nome: "PIZZA",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra040 = {
-      nome: "DOCE",
-      categoria: "ALIMENTOS",
-    }),
-    (palavra040 = {
-      nome: "ABELHA",
-      categoria: "ANIMAIS",
-    }),
-    (palavra041 = {
-      nome: "GALINHA",
-      categoria: "ANIMAIS",
-    }),
-    (palavra042 = {
-      nome: "PACA",
-      categoria: "ANIMAIS",
-    }),
-    (palavra043 = {
-      nome: "CAMELO",
-      categoria: "ANIMAIS",
-    }),
-    (palavra044 = {
-      nome: "PERU",
-      categoria: "ANIMAIS",
-    }),
-    (palavra045 = {
-      nome: "ZEBRA",
-      categoria: "ANIMAIS",
-    }),
-    (palavra046 = {
-      nome: "LEOA",
-      categoria: "ANIMAIS",
-    }),
-    (palavra047 = {
-      nome: "CALANGO",
-      categoria: "ANIMAIS",
-    }),
-    (palavra048 = {
-      nome: "SAGUI",
-      categoria: "ANIMAIS",
-    }),
-    (palavra049 = {
-      nome: "LAGARTIXA",
-      categoria: "ANIMAIS",
-    }),
-    (palavra050 = {
-      nome: "ELEFANTE",
-      categoria: "ANIMAIS",
-    }),
-    (palavra051 = {
-      nome: "A ERA DO GELO",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra052 = {
-      nome: "HOMEM ARANHA",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra053 = {
-      nome: "CASA MONSTRO",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra054 = {
-      nome: "TELA QUENTE",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra055 = {
-      nome: "SHURATO",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra056 = {
-      nome: "O REI DO GADO",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra057 = {
-      nome: "MULHER MARAVILHA",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra058 = {
-      nome: "O INCRIVEL HULK",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra059 = {
-      nome: "BOB ESPONJA",
-      categoria: "TV E CINEMA",
-    }),
-    (palavra060 = {
-      nome: "HE MAN",
-      categoria: "TV E CINEMA",
-    }),
+    { nome: "IRLANDA", categoria: "LUGARES" },
+    { nome: "EQUADOR", categoria: "LUGARES" },
+    { nome: "CHILE", categoria: "LUGARES" },
+    { nome: "INDONESIA", categoria: "LUGARES" },
+    { nome: "MALDIVAS", categoria: "LUGARES" },
+    { nome: "INGLATERRA", categoria: "LUGARES" },
+    { nome: "GROELANDIA", categoria: "LUGARES" },
+    { nome: "UZBEQUISTAO", categoria: "LUGARES" },
+    { nome: "CREGUENHEM", categoria: "LUGARES" },
+    { nome: "BICICLETA", categoria: "TRANSPORTE" },
+    { nome: "LANCHA", categoria: "TRANSPORTE" },
+    { nome: "NAVIO", categoria: "TRANSPORTE" },
+    { nome: "TELEFERICO", categoria: "TRANSPORTE" },
+    { nome: "MOTOCICLETA", categoria: "TRANSPORTE" },
+    { nome: "BARCO", categoria: "TRANSPORTE" },
+    { nome: "AERONAVE", categoria: "TRANSPORTE" },
+    { nome: "TREM", categoria: "TRANSPORTE" },
+    { nome: "CAIAQUE", categoria: "TRANSPORTE" },
+    { nome: "CARRO", categoria: "TRANSPORTE" },
+    { nome: "XICARA", categoria: "OBJETOS" },
+    { nome: "MOEDA", categoria: "OBJETOS" },
+    { nome: "ESPARADRAPO", categoria: "OBJETOS" },
+    { nome: "SINO", categoria: "OBJETOS" },
+    { nome: "CHUVEIRO", categoria: "OBJETOS" },
+    { nome: "TAMBORETE", categoria: "OBJETOS" },
+    { nome: "LAMPADA", categoria: "OBJETOS" },
+    { nome: "BOCAL", categoria: "OBJETOS" },
+    { nome: "CORTINA", categoria: "OBJETOS" },
+    { nome: "LAPIS", categoria: "OBJETOS" },
+    { nome: "MELANCIA", categoria: "ALIMENTOS" },
+    { nome: "AMENDOIM", categoria: "ALIMENTOS" },
+    { nome: "ESFIRRA", categoria: "ALIMENTOS" },
+    { nome: "GOIABA", categoria: "ALIMENTOS" },
+    { nome: "JACA", categoria: "ALIMENTOS" },
+    { nome: "SORVETE", categoria: "ALIMENTOS" },
+    { nome: "DAMASCO", categoria: "ALIMENTOS" },
+    { nome: "MANTEIGA", categoria: "ALIMENTOS" },
+    { nome: "PIZZA", categoria: "ALIMENTOS" },
+    { nome: "DOCE", categoria: "ALIMENTOS" },
+    { nome: "ABELHA", categoria: "ANIMAIS" },
+    { nome: "GALINHA", categoria: "ANIMAIS" },
+    { nome: "PACA", categoria: "ANIMAIS" },
+    { nome: "CAMELO", categoria: "ANIMAIS" },
+    { nome: "PERU", categoria: "ANIMAIS" },
+    { nome: "ZEBRA", categoria: "ANIMAIS" },
+    { nome: "LEOA", categoria: "ANIMAIS" },
+    { nome: "CALANGO", categoria: "ANIMAIS" },
+    { nome: "SAGUI", categoria: "ANIMAIS" },
+    { nome: "LAGARTIXA", categoria: "ANIMAIS" },
+    { nome: "ELEFANTE", categoria: "ANIMAIS" },
+    { nome: "A ERA DO GELO", categoria: "TV E CINEMA" },
+    { nome: "HOMEM ARANHA", categoria: "TV E CINEMA" },
+    { nome: "CASA MONSTRO", categoria: "TV E CINEMA" },
+    { nome: "TELA QUENTE", categoria: "TV E CINEMA" },
+    { nome: "SHURATO", categoria: "TV E CINEMA" },
+    { nome: "O REI DO GADO", categoria: "TV E CINEMA" },
+    { nome: "MULHER MARAVILHA", categoria: "TV E CINEMA" },
+    { nome: "O INCRIVEL HULK", categoria: "TV E CINEMA" },
+    { nome: "BOB ESPONJA", categoria: "TV E CINEMA" },
+    { nome: "HE MAN", categoria: "TV E CINEMA" },
   ];
 }
 
@@ -518,6 +339,7 @@ function sortear() {
       montarPalavraNaTela();
       resetaTeclas();
       tentativas = 6;
+      carregaImagemForca();
       piscarBotaoJogarNovamente(false);
     }
   }
@@ -532,10 +354,13 @@ function resetaTeclas() {
   });
 }
 
-async function piscarBotaoJogarNovamente(querJogar) {
-  if (querJogar) {
-    document.getElementById("jogarNovamente").style.display = "block";
-  } else {
-    document.getElementById("jogarNovamente").style.display = "none";
+function piscarBotaoJogarNovamente(querJogar) {
+  const btn = document.getElementById("jogarNovamente");
+  if (btn) {
+    if (querJogar) {
+      btn.style.display = "block";
+    } else {
+      btn.style.display = "none";
+    }
   }
 }
